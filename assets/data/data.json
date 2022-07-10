@@ -1,0 +1,41 @@
+{
+    "articles": [
+        {
+            "title": "ML Model Deployment Strategies",
+            "path": "../assets/data/ML_Model_Deployment_Strategies.pdf",
+            "link": "ml-model-deployment-strategies",
+            "image": "assets/images/ML_Model_Deployment_Strategies.png",
+            "published": "July 4, 2022",
+            "publisher": "Medium",
+            "description": "Anim non tempor officia voluptate mollit ullamco consectetur officia. Laborum officia culpa eiusmod eu consectetur do magna. Duis dolor dolore cupidatat est in eiusmod amet esse officia ut magna. Ad quis minim mollit id ut culpa. Eu mollit tempor ullamco elit et ea duis. Velit sit sit officia esse ipsum exercitation commodo aliqua."
+        },
+        {
+            "title": "Continuous Machine Learning",
+            "path": "../assets/data/Continuous_Machine_Learning.pdf",
+            "link": "continuous-machine-learning",
+            "image": "assets/images/Continuous_Machine_Learning.png",
+            "published": "March 20, 2022",
+            "publisher": "Medium",
+            "description": "Anim non tempor officia voluptate mollit ullamco consectetur officia. Laborum officia culpa eiusmod eu consectetur do magna. Duis dolor dolore cupidatat est in eiusmod amet esse officia ut magna. Ad quis minim mollit id ut culpa. Eu mollit tempor ullamco elit et ea duis. Velit sit sit officia esse ipsum exercitation commodo aliqua."
+        },
+        {
+            "title": "Machine Learning Adventures with MLFlow",
+            "path": "../assets/data/Machine_Learning_adventures_with_MLFlow.pdf",
+            "link": "machine-learning-adventures-with-mlflow",
+            "image": "assets/images/Machine_Learning_adventures_with_MLFlow.jpg",
+            "published": "December 20, 2021",
+            "publisher": "Medium",
+            "description": "Anim non tempor officia voluptate mollit ullamco consectetur officia. Laborum officia culpa eiusmod eu consectetur do magna. Duis dolor dolore cupidatat est in eiusmod amet esse officia ut magna. Ad quis minim mollit id ut culpa. Eu mollit tempor ullamco elit et ea duis. Velit sit sit officia esse ipsum exercitation commodo aliqua."
+        },
+        {
+            "title": "Go - A Tale of Concurrency",
+            "path": "../assets/data/Go_A_Tale_of_Concurrency.pdf",
+            "link": "go-a-tale-of-concurrency",
+            "image": "assets/images/Go_A_Tale_of_Concurrency.png",
+            "published": "September 29, 2020",
+            "publisher": "Medium",
+            "description": "Anim non tempor officia voluptate mollit ullamco consectetur officia. Laborum officia culpa eiusmod eu consectetur do magna. Duis dolor dolore cupidatat est in eiusmod amet esse officia ut magna. Ad quis minim mollit id ut culpa. Eu mollit tempor ullamco elit et ea duis. Velit sit sit officia esse ipsum exercitation commodo aliqua."
+        }
+        
+    ]
+}
