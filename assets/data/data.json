@@ -1,0 +1,23 @@
+{
+    "articles": [
+        {
+            "title": "Machine Learning Adventures with MLFlow",
+            "path": "../assets/data/Machine_Learning_adventures_with_MLFlow.pdf",
+            "link": "machine-learning-adventures-with-mlflow",
+            "image": "assets/images/Machine_Learning_adventures_with_MLFlow.jpg",
+            "published": "December 20, 2021",
+            "publisher": "Medium",
+            "description": "Learn MLFlow - Understand how machine learning models can be tracked, classified, packaged and deployed. All in one place. I write about my experience with MLFlow and how you can quickly setup your local workflow."
+        },
+        {
+            "title": "Go - A Tale of Concurrency",
+            "path": "../assets/data/Go_A_Tale_of_Concurrency.pdf",
+            "link": "go-a-tale-of-concurrency",
+            "image": "assets/images/Go_A_Tale_of_Concurrency.png",
+            "published": "September 29, 2020",
+            "publisher": "Medium",
+            "description": "Concurrency is a crucial aspect of server architecture. Illustrated guide for anyone who wishes to understand how concurrency works in Golang"
+        }
+        
+    ]
+}
