@@ -1,5 +1,11 @@
 # Welcome
 
+```{figure} ./assets/images/profile_circle.png
+---
+width: 20%
+---
+```
+
 Hello There!
 
 I am Yashaswi Nayak.
@@ -13,7 +19,3 @@ At my day job, I work as MLOps Engineer (tinkering with ML models, infrastructur
 At night I moonlight as an Animator.
 
 Feel free to dive into my articles.
-
-```{tableofcontents}
-
-```
