@@ -39,7 +39,7 @@ jobs:
       - name: Build HTML Assets
         run: myst build --html
       - name: List files
-        run: ls -R
+        run: ls -lah
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
