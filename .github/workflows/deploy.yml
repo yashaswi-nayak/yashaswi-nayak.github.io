@@ -37,13 +37,13 @@ jobs:
       - name: Install MyST Markdown
         run: npm install -g mystmd
       - name: Build HTML Assets
-        run: myst build --html
+        run: cd notes && myst build --html
       - name: List files
-        run: ls -lah
+        run: ls -Rh
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "./notes/_build/site"
+          path: "./notes/_build/html"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
