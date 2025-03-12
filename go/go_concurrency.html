@@ -1,0 +1,1060 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Go: A Tale of Concurrency ( A Beginners Guide ) &#8212; Yashaswi&#39;s Notes</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'go/go_concurrency';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Go: Introduction" href="intro.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/profile_circle.png" class="logo__image only-light" alt="Yashaswi's Notes - Home"/>
+    <script>document.write(`<img src="../_static/profile_circle.png" class="logo__image only-dark" alt="Yashaswi's Notes - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../intro.html">
+                    Welcome
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="intro.html">Go: Introduction</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Go: A Tale of Concurrency ( A Beginners Guide )</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Fgo/go_concurrency.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/go/go_concurrency.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Go: A Tale of Concurrency ( A Beginners Guide )</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-concurrency-is-it-the-same-as-threaded-parallel-asynchronous">What is Concurrency? Is it the same as Threaded? Parallel? Asynchronous?</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wait-a-minute-why-is-this-important-and-why-should-i-care">Wait a minute! Why is this important? And Why should I care?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ok-but-why-go">OK! But why Go?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-concurrency-guide">A Concurrency Guide</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#go-routines-blocking-operations">Go Routines &amp; Blocking Operations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#channels">Channels</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="go-a-tale-of-concurrency-a-beginners-guide">
+<h1>Go: A Tale of Concurrency ( A Beginners Guide )<a class="headerlink" href="#go-a-tale-of-concurrency-a-beginners-guide" title="Link to this heading">#</a></h1>
+<div style="text-align: right" style="color:#c2c2c2;">Sep 29, 2020</div><figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="../_images/Go_A_Tale_of_Concurrency.png"><img alt="../_images/Go_A_Tale_of_Concurrency.png" src="../_images/Go_A_Tale_of_Concurrency.png" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 2 </span><span class="caption-text">Gopher Concurrent Gang</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<span>
+A long time ago...
+<p>When the computers were invented, they needed instructions from their human
+creators. We created specific languages to talk to them, to tell them what to do, when to
+do and how to do. We would tell them step by step what their tasks were. For a time
+being this approach was working. the humans and their computers were very happy.</p>
+<p>Soon the humans created something called the Cloud. It was basically a bunch of
+computers put together, which would help humans solve larger, complex problems. With
+a large array of computers, meant a large array of processors all waiting for tasks from
+their human creators. But our language of code was only suitable for one processor at a
+time. We would tell the computer what to do, one of the processors would pick up our
+instruction list and work on it — the rest of the processors were idle.</p>
+<p>Now we needed to utilize the full extent of computing power that was available when we
+mashed array of computers together. The concept of concurrency comes into the
+picture here.
+</span></p>
+<blockquote>
+<div><p><strong>How do we utilize all the cores on a computer to run our program faster?</strong></p>
+</div></blockquote>
+<span>
+Most of the languages were invented when the computers had only one processor, with 
+the advent of Cloud, the languages had to be modified to enable concurrency. Even 
+then, a new problem arose — our thinking was sequential, we all write code/logic in a 
+sequential manner. How do we adapt our thinking in concurrent terms?
+We started designing libraries, frameworks and methodologies to overcome this very 
+problem. Then it struck us — Hey! Why don’t we design a language that in and itself is 
+adapted to concurrency, rather than change existing languages to enable concurrency.
+<p>Enter Go! The language which is best suited to solve problems concurrently.</p>
+<p>This article aims to explain the primitives of Concurrency in Go.</p>
+<p><strong>If you just need to learn the primitives and not bother about brief explanation of
+concepts, kindly scroll down to the tutorial part (Concurrency Guide).</strong></p>
+<hr class="docutils" />
+<p>Before we begin, let’s resolve the basic confusion we have encountered
+<span></p>
+<section id="what-is-concurrency-is-it-the-same-as-threaded-parallel-asynchronous">
+<h2>What is Concurrency? Is it the same as Threaded? Parallel? Asynchronous?<a class="headerlink" href="#what-is-concurrency-is-it-the-same-as-threaded-parallel-asynchronous" title="Link to this heading">#</a></h2>
+<p><b>Concurrency</b> in its simplest form can be defined as doing multiple things at once.
+Imagine writing two letters with both hands when you have one pencil, you write a
+sentence with your right hand on one letter, then write a sentence with your left hand on
+other letter. You might keep alternating hands, until both the letters are complete. —
+<b>Doing multiple tasks, by sharing time, resources etc.</b></p>
+<p><b>Parallelism</b> means starting the tasks, completing the tasks together. Imagine writing the
+letters with both hands with a pencil in each hand without interruption. This would
+require a lot of brain power and practice. — <b>Doing multiple tasks “at the same time”</b></p>
+<figure class="align-default" id="id5">
+<a class="reference internal image-reference" href="../_images/go_2.webp"><img alt="../_images/go_2.webp" src="../_images/go_2.webp" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 3 </span><span class="caption-text">Concurrency and Parallelism</span><a class="headerlink" href="#id5" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<span>
+In the programmers world, we define the concurrency as the code property, and the 
+parallelism as machine property. Meaning the developer will write a concurrent code, 
+the machine in the end decides whether it will run parallelly or not.
+</span>
+<blockquote>
+<div><p>A Programmer writes a Concurrent Code.
+A Programmer prays the code runs in parallel.</p>
+</div></blockquote>
+<span>
+Thread Programming is usually how we implement the concurrency.
+Asynchronous Programming is a coding style that gives us the impression that things 
+are being done concurrently ( Might or might not be done, behind the scenes)
+</span>
+<section id="wait-a-minute-why-is-this-important-and-why-should-i-care">
+<h3>Wait a minute! Why is this important? And Why should I care?<a class="headerlink" href="#wait-a-minute-why-is-this-important-and-why-should-i-care" title="Link to this heading">#</a></h3>
+<span>
+Being a developer used to be simple. You would learn logic, you would learn a coding 
+language, you would write a program to tell the dumb machine what to do. The code 
+would be a sequential set of operations performed by the machine. Most of us still rely 
+on the good old sequential thinking to design logic and code.
+Sequential programming isn’t bad, but you cannot utilize the full power of what a 
+multiple core provides. Imagine you design a graph search algorithm, your algorithm 
+starts at a single point in graph and works it’s way towards the target node. Now think
+how much faster it would be if you had 4 cores, performing search operations on 
+different parts of graph simultaneously.
+</span><figure class="align-default" id="id6">
+<a class="reference internal image-reference" href="../_images/go_2.webp"><img alt="../_images/go_2.webp" src="../_images/go_2.webp" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 4 </span><span class="caption-text">Awesomeness Unleashed</span><a class="headerlink" href="#id6" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>With the advent of cloud computing, the processing power has increased vastly. What you can achieve with multiple cores, greatly overshadows what you can achieve with a single core. Now is the time to take advantage of the computing power.</p>
+<img alt="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3hwNWFud3Q4a2VhbnNpeGszdGZ6d2FxYXZzaTJpcnY4djh2MHg2NSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/GIIC4jmmUlXZS/giphy.gif" src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3hwNWFud3Q4a2VhbnNpeGszdGZ6d2FxYXZzaTJpcnY4djh2MHg2NSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/GIIC4jmmUlXZS/giphy.gif" />
+</section>
+</section>
+<section id="ok-but-why-go">
+<h2>OK! But why Go?<a class="headerlink" href="#ok-but-why-go" title="Link to this heading">#</a></h2>
+<p>Traditionally programming concurrency — has been done using threads, most programming languages offer a thread library to implement concurrency. You would do something like this</p>
+<ol class="arabic simple">
+<li><p>Think how a program might utilize threads</p></li>
+<li><p>Implement a code which utilizes threads</p></li>
+<li><p>Find out that you are not getting the desired output, due to various reasons like deadlocks, invalid memory access, no synchronous operations, no communication between threads …</p></li>
+<li><p>Figure out what is the real issue — fix the issue, check again</p></li>
+<li><p>Repeat step 3 and 4 until the program runs as you desire</p></li>
+<li><p>Watch the program become so complex, you couldn’t explain it, even if you tried to.</p></li>
+</ol>
+<p>More importantly the Thread/Concurrent operations in all languages are dependent on
+some common factors like</p>
+<ul class="simple">
+<li><p>How the language handles OS threads ?</p></li>
+<li><p>What’s the size of the thread stack available ?</p></li>
+<li><p>How efficient is the library in handling it’s thread pool ?</p></li>
+<li><p>How many cores would be available for thread operations ?</p></li>
+</ul>
+<p><strong>Go offers the following advantages in Concurrency</strong></p>
+<ul class="simple">
+<li><p>Lightweight Threads</p></li>
+<li><p>No OS Threads, instead we get virtual threads multiplexed onto OS threads</p></li>
+<li><p>Channels for communicating between concurrent parts</p></li>
+<li><p>Cleaner and simpler implementation than most other languages</p></li>
+<li><p>Go Runtime and Scheduler work hand in hand to manage the implementation efficiently.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="a-concurrency-guide">
+<h2>A Concurrency Guide<a class="headerlink" href="#a-concurrency-guide" title="Link to this heading">#</a></h2>
+<p>Now armed with the knowledge — that Go is the Way for Concurrency in future. Let’s
+understand the basic primitives of it.</p>
+<p>We have 3 basic concepts in implementing concurrency in Go:</p>
+<ol class="arabic simple">
+<li><p>Go Routines</p></li>
+<li><p>Blocking Operations</p></li>
+<li><p>Channels (Buffered &amp; Unbuffered)</p></li>
+</ol>
+<p>Let’s understand each of them with a simple example of a restaurant</p>
+<blockquote>
+<div><p>We have a restaurant, we give an order, the Waiter takes the order
+from us, gives it to a Chef. The Chef cooks the meal, hands over <br/>
+the food to the Waiter, who brings it to us <br/></p>
+</div></blockquote>
+<figure class="align-default" id="id7">
+<a class="reference internal image-reference" href="../_images/go_3.webp"><img alt="../_images/go_3.webp" src="../_images/go_3.webp" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 5 </span><span class="caption-text">Sequential Processing</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>A simple sequential program in Go might look like this</p>
+<div class="literal-block-wrapper docutils container" id="code-linenumbers">
+<div class="code-block-caption"><span class="caption-number">Listing 1 </span><span class="caption-text">Sequential Program</span><a class="headerlink" href="#code-linenumbers" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="linenos"> 4</span><span class="w">	</span><span class="s">&quot;fmt&quot;</span>
+<span class="linenos"> 5</span><span class="w">	</span><span class="s">&quot;math/rand&quot;</span>
+<span class="linenos"> 6</span><span class="p">)</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="c1">// Function to select a Chef and Waiter for you</span>
+<span class="linenos"> 9</span><span class="kd">func</span><span class="w"> </span><span class="nx">selectWaiterAndChef</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">10</span><span class="w">	</span><span class="nx">allChefs</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&quot;Jack&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Bob&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Mark&quot;</span><span class="p">}</span>
+<span class="linenos">11</span><span class="w">	</span><span class="nx">allWaiters</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&quot;A&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;B&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="p">}</span>
+<span class="linenos">12</span>
+<span class="linenos">13</span><span class="w">	</span><span class="nx">randomC</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rand</span><span class="p">.</span><span class="nx">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">allChefs</span><span class="p">))</span>
+<span class="linenos">14</span><span class="w">	</span><span class="nx">randomW</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rand</span><span class="p">.</span><span class="nx">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">allWaiters</span><span class="p">))</span>
+<span class="linenos">15</span><span class="w">	</span><span class="nx">cpick</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">allChefs</span><span class="p">[</span><span class="nx">randomC</span><span class="p">]</span>
+<span class="linenos">16</span><span class="w">	</span><span class="nx">wpick</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">allWaiters</span><span class="p">[</span><span class="nx">randomW</span><span class="p">]</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nx">cpick</span><span class="p">,</span><span class="w"> </span><span class="nx">wpick</span>
+<span class="linenos">19</span><span class="p">}</span>
+<span class="linenos">20</span>
+<span class="linenos">21</span><span class="c1">// Function where the waiter takes and brings your order</span>
+<span class="linenos">22</span><span class="kd">func</span><span class="w"> </span><span class="nx">processOrder</span><span class="p">(</span><span class="nx">takes</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">23</span><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="nx">takes</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;takes&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">24</span><span class="w">		</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Waiter %s takes order %d to chef %s \n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="p">)</span>
+<span class="linenos">25</span><span class="w">	</span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">26</span><span class="w">		</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Waiter %s brings order %d from chef %s \n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="p">)</span>
+<span class="linenos">27</span><span class="w">	</span><span class="p">}</span>
+<span class="linenos">28</span><span class="p">}</span>
+<span class="linenos">29</span>
+<span class="linenos">30</span><span class="c1">// Function where the Chef cooks your meal</span>
+<span class="linenos">31</span><span class="kd">func</span><span class="w"> </span><span class="nx">chefCooks</span><span class="p">(</span><span class="nx">gotOrder</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">32</span><span class="w">	</span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Chef %s cooks order %d \n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="p">,</span><span class="w"> </span><span class="nx">gotOrder</span><span class="p">)</span>
+<span class="linenos">33</span><span class="p">}</span>
+<span class="linenos">34</span>
+<span class="linenos">35</span><span class="c1">// Main function</span>
+<span class="linenos">36</span><span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">37</span><span class="w">	</span><span class="nx">totalOrders</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">5</span>
+<span class="linenos">38</span>
+<span class="linenos">39</span><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">totalOrders</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">40</span><span class="w">		</span><span class="nx">chef</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">selectWaiterAndChef</span><span class="p">()</span>
+<span class="linenos">41</span><span class="w">		</span><span class="nx">processOrder</span><span class="p">(</span><span class="s">&quot;takes&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="p">)</span>
+<span class="linenos">42</span><span class="w">		</span><span class="nx">chefCooks</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="p">)</span>
+<span class="linenos">43</span><span class="w">		</span><span class="nx">processOrder</span><span class="p">(</span><span class="s">&quot;brings&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="p">)</span>
+<span class="linenos">44</span><span class="w">	</span><span class="p">}</span>
+<span class="linenos">45</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<span>
+The output is something like this
+</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Waiter A takes order 0 to chef Mark    
+Chef Mark cooks order 0                
+Waiter A brings order 0 from chef Mark 
+Waiter C takes order 1 to chef Mark    
+Chef Mark cooks order 1                
+Waiter C brings order 1 from chef Mark 
+Waiter A takes order 2 to chef Bob     
+Chef Bob cooks order 2                 
+Waiter A brings order 2 from chef Bob  
+Waiter C takes order 3 to chef Bob     
+Chef Bob cooks order 3                 
+Waiter C brings order 3 from chef Bob  
+Waiter A takes order 4 to chef Bob     
+Chef Bob cooks order 4                 
+Waiter A brings order 4 from chef Bob
+</pre></div>
+</div>
+<p><strong>Do you see the issue here?</strong></p>
+<ul class="simple">
+<li><p>We get the waiter and chef selected, sequentially the waiter takes the order to chef,
+the chef cooks it, then the waiter brings it back</p></li>
+<li><p>As our customers increase, the totalOrders increases, the orders are processed
+sequentially, so the last order has to wait until all previous orders are
+processed</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="go-routines-blocking-operations">
+<h2>Go Routines &amp; Blocking Operations<a class="headerlink" href="#go-routines-blocking-operations" title="Link to this heading">#</a></h2>
+<p>Goroutines are the most basic way concurrency is implemented in Golang. They are
+basically functions which have been prefixed with the keyword <code class="docutils literal notranslate"><span class="pre">go</span></code></p>
+<p>Luckily the code can be converted to concurrent execution in Go using goroutines. Look at the following code.</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-number">Listing 2 </span><span class="caption-text">Concurrent Restaurant</span><a class="headerlink" href="#id1" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="w">   </span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="w">   </span><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="linenos"> 4</span><span class="w">       </span><span class="s">&quot;fmt&quot;</span>
+<span class="linenos"> 5</span><span class="w">       </span><span class="s">&quot;math/rand&quot;</span>
+<span class="linenos"> 6</span><span class="w">       </span><span class="s">&quot;runtime&quot;</span>
+<span class="linenos"> 7</span><span class="w">       </span><span class="s">&quot;time&quot;</span>
+<span class="linenos"> 8</span><span class="w">   </span><span class="p">)</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="w">   </span><span class="c1">// Function to select a Chef and Waiter for you</span>
+<span class="linenos">11</span><span class="w">   </span><span class="kd">func</span><span class="w"> </span><span class="nx">selectWaiterAndChef</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">12</span><span class="w">       </span><span class="nx">allChefs</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&quot;Jack&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Bob&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Mark&quot;</span><span class="p">}</span>
+<span class="linenos">13</span><span class="w">       </span><span class="nx">allWaiters</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&quot;A&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;B&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="p">}</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span><span class="w">       </span><span class="nx">randomC</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rand</span><span class="p">.</span><span class="nx">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">allChefs</span><span class="p">))</span>
+<span class="linenos">16</span><span class="w">       </span><span class="nx">randomW</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rand</span><span class="p">.</span><span class="nx">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">allWaiters</span><span class="p">))</span>
+<span class="linenos">17</span><span class="w">       </span><span class="nx">cpick</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">allChefs</span><span class="p">[</span><span class="nx">randomC</span><span class="p">]</span>
+<span class="linenos">18</span><span class="w">       </span><span class="nx">wpick</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">allWaiters</span><span class="p">[</span><span class="nx">randomW</span><span class="p">]</span>
+<span class="linenos">19</span>
+<span class="linenos">20</span><span class="w">       </span><span class="k">return</span><span class="w"> </span><span class="nx">cpick</span><span class="p">,</span><span class="w"> </span><span class="nx">wpick</span>
+<span class="linenos">21</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">22</span>
+<span class="linenos">23</span><span class="w">   </span><span class="c1">// Function where the waiter takes and brings your order</span>
+<span class="linenos">24</span><span class="w">   </span><span class="kd">func</span><span class="w"> </span><span class="nx">processOrder</span><span class="p">(</span><span class="nx">takes</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">25</span><span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="nx">takes</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;takes&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">26</span><span class="w">           </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Waiter %s takes order %d to chef %s \n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="p">)</span>
+<span class="linenos">27</span><span class="w">       </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">28</span><span class="w">           </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Waiter %s brings order %d from chef %s \n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="p">)</span>
+<span class="linenos">29</span><span class="w">       </span><span class="p">}</span>
+<span class="linenos">30</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span><span class="w">   </span><span class="c1">// Function where the Chef cooks your meal</span>
+<span class="linenos">33</span><span class="w">   </span><span class="kd">func</span><span class="w"> </span><span class="nx">chefCooks</span><span class="p">(</span><span class="nx">gotOrder</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">34</span><span class="w">       </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Chef %s cooks order %d \n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="p">,</span><span class="w"> </span><span class="nx">gotOrder</span><span class="p">)</span>
+<span class="linenos">35</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">36</span>
+<span class="linenos">37</span><span class="w">   </span><span class="c1">// Main function</span>
+<span class="linenos">38</span><span class="w">   </span><span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">39</span><span class="w">       </span><span class="nx">runtime</span><span class="p">.</span><span class="nx">GOMAXPROCS</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos">40</span><span class="w">       </span><span class="nx">totalOrders</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">5</span>
+<span class="linenos">41</span>
+<span class="linenos">42</span><span class="w">       </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">totalOrders</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">43</span><span class="w">           </span><span class="nx">chef</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">selectWaiterAndChef</span><span class="p">()</span>
+<span class="linenos">44</span><span class="w">           </span><span class="k">go</span><span class="w"> </span><span class="nx">processOrder</span><span class="p">(</span><span class="s">&quot;takes&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="p">)</span>
+<span class="linenos">45</span><span class="w">           </span><span class="k">go</span><span class="w"> </span><span class="nx">chefCooks</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="p">)</span>
+<span class="linenos">46</span><span class="w">           </span><span class="k">go</span><span class="w"> </span><span class="nx">processOrder</span><span class="p">(</span><span class="s">&quot;brings&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="p">)</span>
+<span class="linenos">47</span><span class="w">       </span><span class="p">}</span>
+<span class="linenos">48</span>
+<span class="linenos">49</span><span class="w">       </span><span class="o">&lt;-</span><span class="nx">time</span><span class="p">.</span><span class="nx">After</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span>
+<span class="linenos">50</span><span class="w">   </span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Now we have added the keyword go to the 3 calls of operations. We notice two changes</p>
+<p>There’s something called runtime.GOMAXPROCS(1)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This helps us control how many processors can be used for threading, it usually defaults to the number of cores available. We have set it to 1, meaning there is 2 OS thread available to us for concurrency.</p>
+<p>This call has to be carefully considered during production, set it to the number of cores in your CPU. Also Go Team has said that this call will be removed as the Go Scheduler improves</p>
+</div>
+<p>There’s something called &lt;-time.After(time.Second*5)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is called Blocking Operations. The main function in a Go program is also a goroutine (main goroutine). When we run concurrent operations in Go, the function execution begins, and the control passes back to the main.</p>
+<p>So when we don’t include this line, nothing is printed on the screen, as the control comes back to main and finds nothing to execute, so it simply exits the main goroutine.</p>
+<p>When the main goroutine exits, the children routines are exited as well. Yay! As we don’t have to worry about Orphans.</p>
+</div>
+<p>You can achieve this via <em>time.Sleep(5), a for { } or something called WaitGroup(waits for goroutines to complete)</em> as well. Since <strong>WaitGroup</strong> involves more code and signature changes, I felt this was a neater way.</p>
+<div class="admonition-waitgroups admonition">
+<p class="admonition-title">WaitGroups</p>
+<p>WaitGroups are proper way of doing things. Examples used here are for quick playing around! I have also included the WaitGroup example links, for reference</p>
+</div>
+<p>You can find the code using WaitGroup <a class="reference external" href="https://gist.github.com/yashaswi-nayak/29e07edcefa89867ee614c847fff24c2">here</a></p>
+<p>Let’s look at the output, you will see something like this</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Waiter A brings order 4 from chef Bob 
+Waiter A takes order 0 to chef Mark 
+Chef Mark cooks order 0 
+Waiter A brings order 0 from chef Mark 
+Waiter C takes order 1 to chef Mark 
+Chef Mark cooks order 1 
+Waiter C brings order 1 from chef Mark 
+Waiter A takes order 2 to chef Bob 
+Chef Bob cooks order 2 
+Waiter A brings order 2 from chef Bob 
+Waiter C takes order 3 to chef Bob 
+Chef Bob cooks order 3 
+Waiter C brings order 3 from chef Bob 
+Waiter A takes order 4 to chef Bob 
+Chef Bob cooks order 4
+</pre></div>
+</div>
+<p>Everything is great except the last chunk there, <strong>the order 4 is brought to the customer before it gets cooked?</strong> What magic is this?</p>
+<p>As I said, the go routine is concurrent, which means whatever we have called as go routine is executed simultaneously by switching context. The second <em>processOrder</em> on line 46, must have finished first and printed, before the others had chance to execute.</p>
+<figure class="align-default" id="id8">
+<a class="reference internal image-reference" href="../_images/go_4.webp"><img alt="../_images/go_4.webp" src="../_images/go_4.webp" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 6 </span><span class="caption-text">Goroutines at work</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>This brings us to the important part <strong>Communication between the processes.</strong>
+This is achieved using the Channels</p>
+</section>
+<hr class="docutils" />
+<section id="channels">
+<h2>Channels<a class="headerlink" href="#channels" title="Link to this heading">#</a></h2>
+<p>A Channel is simple data structure which is shared between the goroutines for communication. Think of it as a notification you get for any updates on your favourite apps. Something new has happened, you get a notification.</p>
+<p>Similarly when a process has done something exciting, before handing off control to another process, it allows the other processes know what’s up. This is summarized in the Golang motto</p>
+<blockquote>
+<div><p>Don’t communicate by sharing memory; share memory by communicating</p>
+</div></blockquote>
+<p>This means that the processes have to talk to each other before utilizing variables, memory or resources. Consider the following modified code</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-number">Listing 3 </span><span class="caption-text">Channels</span><a class="headerlink" href="#id2" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="w">   </span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="w">   </span><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="linenos"> 4</span><span class="w">       </span><span class="s">&quot;fmt&quot;</span>
+<span class="linenos"> 5</span><span class="w">       </span><span class="s">&quot;math/rand&quot;</span>
+<span class="linenos"> 6</span><span class="w">       </span><span class="s">&quot;runtime&quot;</span>
+<span class="linenos"> 7</span><span class="w">       </span><span class="s">&quot;time&quot;</span>
+<span class="linenos"> 8</span><span class="w">   </span><span class="p">)</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="w">   </span><span class="c1">// Simple structure which tags chef and order number</span>
+<span class="linenos">11</span><span class="w">   </span><span class="kd">type</span><span class="w"> </span><span class="nx">chefOrder</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">12</span><span class="w">       </span><span class="nx">chef</span><span class="w">  </span><span class="kt">string</span>
+<span class="linenos">13</span><span class="w">       </span><span class="nx">order</span><span class="w"> </span><span class="kt">int</span>
+<span class="linenos">14</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span><span class="w">   </span><span class="c1">// Function to select a Chef and Waiter for you</span>
+<span class="linenos">17</span><span class="w">   </span><span class="kd">func</span><span class="w"> </span><span class="nx">selectWaiterAndChef</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">18</span><span class="w">       </span><span class="nx">allChefs</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&quot;Jack&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Bob&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Mark&quot;</span><span class="p">}</span>
+<span class="linenos">19</span><span class="w">       </span><span class="nx">allWaiters</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&quot;A&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;B&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="p">}</span>
+<span class="linenos">20</span>
+<span class="linenos">21</span><span class="w">       </span><span class="nx">randomC</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rand</span><span class="p">.</span><span class="nx">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">allChefs</span><span class="p">))</span>
+<span class="linenos">22</span><span class="w">       </span><span class="nx">randomW</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rand</span><span class="p">.</span><span class="nx">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">allWaiters</span><span class="p">))</span>
+<span class="linenos">23</span><span class="w">       </span><span class="nx">cpick</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">allChefs</span><span class="p">[</span><span class="nx">randomC</span><span class="p">]</span>
+<span class="linenos">24</span><span class="w">       </span><span class="nx">wpick</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">allWaiters</span><span class="p">[</span><span class="nx">randomW</span><span class="p">]</span>
+<span class="linenos">25</span>
+<span class="linenos">26</span><span class="w">       </span><span class="k">return</span><span class="w"> </span><span class="nx">cpick</span><span class="p">,</span><span class="w"> </span><span class="nx">wpick</span>
+<span class="linenos">27</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">28</span>
+<span class="linenos">29</span><span class="w">   </span><span class="c1">// Function where the waiter takes and brings your order</span>
+<span class="linenos">30</span><span class="w">   </span><span class="kd">func</span><span class="w"> </span><span class="nx">processOrder</span><span class="p">(</span><span class="nx">takes</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">orderChan</span><span class="w"> </span><span class="kd">chan</span><span class="w"> </span><span class="nx">chefOrder</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">31</span><span class="w">       </span><span class="nx">chef</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">selectWaiterAndChef</span><span class="p">()</span>
+<span class="linenos">32</span><span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="nx">takes</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;takes&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">33</span><span class="w">           </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Waiter %s takes order %d to chef %s \n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="p">)</span>
+<span class="linenos">34</span><span class="w">           </span><span class="nx">orderChan</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">chefOrder</span><span class="p">{</span><span class="nx">chef</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="p">}</span>
+<span class="linenos">35</span><span class="w">       </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">36</span><span class="w">           </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Waiter %s brings order %d from chef %s \n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="p">)</span>
+<span class="linenos">37</span><span class="w">       </span><span class="p">}</span>
+<span class="linenos">38</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">39</span>
+<span class="linenos">40</span><span class="w">   </span><span class="c1">// Function where the Chef cooks your meal</span>
+<span class="linenos">41</span><span class="w">   </span><span class="kd">func</span><span class="w"> </span><span class="nx">chefCooks</span><span class="p">(</span><span class="nx">orderChan</span><span class="w"> </span><span class="kd">chan</span><span class="w"> </span><span class="nx">chefOrder</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">42</span><span class="w">       </span><span class="nx">gotOrder</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&lt;-</span><span class="nx">orderChan</span>
+<span class="linenos">43</span><span class="w">       </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Chef %s cooks order %d \n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">gotOrder</span><span class="p">.</span><span class="nx">chef</span><span class="p">,</span><span class="w"> </span><span class="nx">gotOrder</span><span class="p">.</span><span class="nx">order</span><span class="p">)</span>
+<span class="linenos">44</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">45</span>
+<span class="linenos">46</span><span class="w">   </span><span class="c1">// Main function</span>
+<span class="linenos">47</span><span class="w">   </span><span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">48</span><span class="w">       </span><span class="nx">runtime</span><span class="p">.</span><span class="nx">GOMAXPROCS</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos">49</span><span class="w">       </span><span class="nx">totalOrders</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">5</span>
+<span class="linenos">50</span>
+<span class="linenos">51</span><span class="w">       </span><span class="nx">orderChan</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">chan</span><span class="w"> </span><span class="nx">chefOrder</span><span class="p">)</span>
+<span class="linenos">52</span>
+<span class="linenos">53</span><span class="w">       </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">totalOrders</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">54</span><span class="w">           </span><span class="k">go</span><span class="w"> </span><span class="nx">processOrder</span><span class="p">(</span><span class="s">&quot;takes&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">orderChan</span><span class="p">)</span>
+<span class="linenos">55</span><span class="w">           </span><span class="k">go</span><span class="w"> </span><span class="nx">chefCooks</span><span class="p">(</span><span class="nx">orderChan</span><span class="p">)</span>
+<span class="linenos">56</span><span class="w">           </span><span class="k">go</span><span class="w"> </span><span class="nx">processOrder</span><span class="p">(</span><span class="s">&quot;brings&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">orderChan</span><span class="p">)</span>
+<span class="linenos">57</span><span class="w">           </span><span class="nx">time</span><span class="p">.</span><span class="nx">Sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos">58</span><span class="w">       </span><span class="p">}</span>
+<span class="linenos">59</span><span class="w">       </span><span class="o">&lt;-</span><span class="nx">time</span><span class="p">.</span><span class="nx">After</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span>
+<span class="linenos">60</span><span class="w">   </span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>We see some changes in this code</p>
+<ul class="simple">
+<li><p>A struct which will tag our chef with an order, meaning we now know which chef has which order</p></li>
+<li><p>Notice the function signature of chefCooks and processOrder has changed. This allows us to tell the functions to talk to each other, over a channel.</p></li>
+</ul>
+<ul class="simple">
+<li><p>Meaning the Chef will wait for someone to post order over the channel, only then will he cook the order.</p></li>
+</ul>
+<figure class="align-default" id="id9">
+<a class="reference internal image-reference" href="../_images/go_5.webp"><img alt="../_images/go_5.webp" src="../_images/go_5.webp" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 7 </span><span class="caption-text">Single-Channel Implementation</span><a class="headerlink" href="#id9" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>You will get an output like this, it might vary with execution.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Waiter A takes order 0 to chef Mark 
+Chef Mark cooks order 0 
+Waiter C brings order 0 from chef Mark 
+Waiter A takes order 1 to chef Bob 
+Chef Bob cooks order 1 
+Waiter C brings order 1 from chef Bob 
+Waiter A takes order 2 to chef Bob 
+Chef Bob cooks order 2 
+Waiter B brings order 2 from chef Mark 
+Waiter C takes order 3 to chef Jack 
+Chef Jack cooks order 3 
+Waiter C brings order 3 from chef Bob 
+Waiter C takes order 4 to chef Jack 
+Chef Jack cooks order 4 
+Waiter C brings order 4 from chef Mark
+</pre></div>
+</div>
+<p>Now this is only a single channel. i.e. The Chef will keep waiting until has has an order, the waiter keeps posting new order to the channel.</p>
+<p>We can simplify the entire process using two channels.</p>
+<ol class="arabic simple">
+<li><p><strong>orderChan</strong> — Channel where <em>Waiter pushes the order, Chef listens on it</em>, if the Chef gets new order here, he/she will cook the meal.</p></li>
+<li><p><strong>cookChan</strong> — Channel where <em>Chef pushes meal after he finishes cooking, the Waiter listens on it</em>, if Chef gives cooked meal, the Waiter delivers it.</p></li>
+</ol>
+<p>Check out the following code.</p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-number">Listing 4 </span><span class="caption-text">Dual Channels</span><a class="headerlink" href="#id3" title="Link to this code">#</a></div>
+<div class="highlight-go notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="w">   </span><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="w">   </span><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="linenos"> 4</span><span class="w">       </span><span class="s">&quot;fmt&quot;</span>
+<span class="linenos"> 5</span><span class="w">       </span><span class="s">&quot;math/rand&quot;</span>
+<span class="linenos"> 6</span><span class="w">       </span><span class="s">&quot;runtime&quot;</span>
+<span class="linenos"> 7</span><span class="w">       </span><span class="s">&quot;time&quot;</span>
+<span class="linenos"> 8</span><span class="w">   </span><span class="p">)</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="w">   </span><span class="c1">// Simple structure which tags chef and order numbe</span>
+<span class="linenos">11</span><span class="w">   </span><span class="kd">type</span><span class="w"> </span><span class="nx">chefOrder</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">12</span><span class="w">       </span><span class="nx">chef</span><span class="w">  </span><span class="kt">string</span>
+<span class="linenos">13</span><span class="w">       </span><span class="nx">order</span><span class="w"> </span><span class="kt">int</span>
+<span class="linenos">14</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span><span class="w">   </span><span class="c1">// Same as above, duplex channel</span>
+<span class="linenos">17</span><span class="w">   </span><span class="kd">type</span><span class="w"> </span><span class="nx">chefCooked</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">18</span><span class="w">       </span><span class="nx">chef</span><span class="w">  </span><span class="kt">string</span>
+<span class="linenos">19</span><span class="w">       </span><span class="nx">order</span><span class="w"> </span><span class="kt">int</span>
+<span class="linenos">20</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">21</span>
+<span class="linenos">22</span><span class="w">   </span><span class="c1">// Function to select a Chef and Waiter for you</span>
+<span class="linenos">23</span><span class="w">   </span><span class="kd">func</span><span class="w"> </span><span class="nx">selectWaiterAndChef</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">24</span><span class="w">       </span><span class="nx">allChefs</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&quot;Jack&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Bob&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Mark&quot;</span><span class="p">}</span>
+<span class="linenos">25</span><span class="w">       </span><span class="nx">allWaiters</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&quot;A&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;B&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="p">}</span>
+<span class="linenos">26</span>
+<span class="linenos">27</span><span class="w">       </span><span class="nx">randomC</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rand</span><span class="p">.</span><span class="nx">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">allChefs</span><span class="p">))</span>
+<span class="linenos">28</span><span class="w">       </span><span class="nx">randomW</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rand</span><span class="p">.</span><span class="nx">Intn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">allWaiters</span><span class="p">))</span>
+<span class="linenos">29</span><span class="w">       </span><span class="nx">cpick</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">allChefs</span><span class="p">[</span><span class="nx">randomC</span><span class="p">]</span>
+<span class="linenos">30</span><span class="w">       </span><span class="nx">wpick</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">allWaiters</span><span class="p">[</span><span class="nx">randomW</span><span class="p">]</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span><span class="w">       </span><span class="k">return</span><span class="w"> </span><span class="nx">cpick</span><span class="p">,</span><span class="w"> </span><span class="nx">wpick</span>
+<span class="linenos">33</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">34</span>
+<span class="linenos">35</span><span class="w">   </span><span class="c1">// Function where the waiter takes order, chef cooks it and waiter brings your order</span>
+<span class="linenos">36</span><span class="w">   </span><span class="kd">func</span><span class="w"> </span><span class="nx">processOrderandCook</span><span class="p">(</span><span class="nx">order</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">orderChan</span><span class="w"> </span><span class="kd">chan</span><span class="w"> </span><span class="nx">chefOrder</span><span class="p">,</span><span class="w"> </span><span class="nx">cookChan</span><span class="w"> </span><span class="kd">chan</span><span class="w"> </span><span class="nx">chefCooked</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">37</span><span class="w">       </span><span class="nx">chef</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">selectWaiterAndChef</span><span class="p">()</span>
+<span class="linenos">38</span><span class="w">       </span><span class="k">select</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">39</span><span class="w">       </span><span class="k">case</span><span class="w"> </span><span class="nx">cookedOrder</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&lt;-</span><span class="nx">cookChan</span><span class="p">:</span>
+<span class="linenos">40</span><span class="w">           </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Waiter %s brings order %d from chef %s \n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="p">,</span><span class="w"> </span><span class="nx">cookedOrder</span><span class="p">.</span><span class="nx">order</span><span class="p">,</span><span class="w"> </span><span class="nx">cookedOrder</span><span class="p">.</span><span class="nx">chef</span><span class="p">)</span>
+<span class="linenos">41</span><span class="w">       </span><span class="k">case</span><span class="w"> </span><span class="nx">gotOrder</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&lt;-</span><span class="nx">orderChan</span><span class="p">:</span>
+<span class="linenos">42</span><span class="w">           </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Chef %s cooks order %d \n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">gotOrder</span><span class="p">.</span><span class="nx">chef</span><span class="p">,</span><span class="w"> </span><span class="nx">gotOrder</span><span class="p">.</span><span class="nx">order</span><span class="p">)</span>
+<span class="linenos">43</span><span class="w">           </span><span class="nx">cookChan</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">chefCooked</span><span class="p">{</span><span class="nx">gotOrder</span><span class="p">.</span><span class="nx">chef</span><span class="p">,</span><span class="w"> </span><span class="nx">gotOrder</span><span class="p">.</span><span class="nx">order</span><span class="p">}</span>
+<span class="linenos">44</span><span class="w">       </span><span class="k">default</span><span class="p">:</span>
+<span class="linenos">45</span><span class="w">           </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Waiter %s takes order %d to chef %s \n&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">waiter</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="p">,</span><span class="w"> </span><span class="nx">chef</span><span class="p">)</span>
+<span class="linenos">46</span><span class="w">           </span><span class="nx">orderChan</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">chefOrder</span><span class="p">{</span><span class="nx">chef</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="p">}</span>
+<span class="linenos">47</span><span class="w">       </span><span class="p">}</span>
+<span class="linenos">48</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">49</span>
+<span class="linenos">50</span><span class="w">   </span><span class="c1">// Main function</span>
+<span class="linenos">51</span><span class="w">   </span><span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">52</span><span class="w">       </span><span class="nx">runtime</span><span class="p">.</span><span class="nx">GOMAXPROCS</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos">53</span><span class="w">       </span><span class="nx">totalOrders</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">5</span>
+<span class="linenos">54</span>
+<span class="linenos">55</span><span class="w">       </span><span class="nx">orderChan</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">chan</span><span class="w"> </span><span class="nx">chefOrder</span><span class="p">)</span>
+<span class="linenos">56</span><span class="w">       </span><span class="nx">cookChan</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kd">chan</span><span class="w"> </span><span class="nx">chefCooked</span><span class="p">)</span>
+<span class="linenos">57</span>
+<span class="linenos">58</span><span class="w">       </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">totalOrders</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">59</span><span class="w">           </span><span class="k">go</span><span class="w"> </span><span class="nx">processOrderandCook</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">orderChan</span><span class="p">,</span><span class="w"> </span><span class="nx">cookChan</span><span class="p">)</span>
+<span class="linenos">60</span><span class="w">       </span><span class="p">}</span>
+<span class="linenos">61</span><span class="w">       </span><span class="o">&lt;-</span><span class="nx">time</span><span class="p">.</span><span class="nx">After</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span>
+<span class="linenos">62</span><span class="w">   </span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>The output will be same as the previous case, except the code is shorter.</p>
+<ul class="simple">
+<li><p>We reduced the 3 concurrent function calls to one function which runs concurrently, monitoring the channels.</p></li>
+<li><p>We use the select { } block to monitor the channel.</p></li>
+<li><p>Waiters and Chefs work in tandem to deliver the delicious meal to you.</p></li>
+</ul>
+<figure class="align-default" id="id10">
+<a class="reference internal image-reference" href="../_images/go_6.webp"><img alt="../_images/go_6.webp" src="../_images/go_6.webp" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 8 </span><span class="caption-text">Two Channels</span><a class="headerlink" href="#id10" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Congratulations! We have a restaurant up and running! Logic wise! Code wise!</p>
+<p><strong>A full example using WaitGroups can be found <a class="reference external" href="https://gist.github.com/yashaswi-nayak/b667a98073d0dbb6cb621f6021e95228">here</a></strong></p>
+<p>A Buffered Channel, is similar to the Unbuffered Channel that we implemented, but uses a blocking mechanism.</p>
+<p>In our case, the Chef will keep cooking as long as he gets the order from the channel. This isn’t an ideal case, as our Chef is Human ( Or an incredibly talented Rat).</p>
+<p><strong>Chefs get tired</strong>, so a limit will be put on the channel, say a Chef can only cook 3 dishes at a time. So the function will block if the channel is full. Until the Chef finishes cooking the dishes in the list.</p>
+<a class="reference internal image-reference" href="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExcnZ4djl4d2JuNzl6cTAxYnpweXhsbXV2cWpwMGJrZHlnaWh1dGh4biZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/16MDneji1DG48/giphy.gif"><img alt="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExcnZ4djl4d2JuNzl6cTAxYnpweXhsbXV2cWpwMGJrZHlnaWh1dGh4biZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/16MDneji1DG48/giphy.gif" src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExcnZ4djl4d2JuNzl6cTAxYnpweXhsbXV2cWpwMGJrZHlnaWh1dGh4biZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/16MDneji1DG48/giphy.gif" style="width: 80%;" /></a>
+<hr class="docutils" />
+<p>So, here we are, fully equipped with the knowledge of how concurrency is implemented in Golang. Now using this knowledge you can explore the <strong>Concurrency Patterns</strong> ( how cool applications can be developed using it) Check out the following links</p>
+<p><a class="reference external" href="https://go.dev/blog/pipelines">Concurrency Patterns</a></p>
+<p><a class="reference external" href="https://www.youtube.com/watch?v=YEKjSzIwAdA">Concurrency Patterns Video</a></p>
+<p><a class="reference external" href="https://www.youtube.com/watch?v=5n-0TByKOPc">Multiple CPU in one Board?</a></p>
+<p>That’s it for now! Until next time! See you all on the other side! Be Safe! Code safe! Bye!</p>
+<p>P.S — Thanks to Nicholas Eden for some excellent tips on WaitGroups. Also here’s the <a class="reference external" href="https://gopherize.me/">link</a> where you can create your own Go Beaver (Gopher)</p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./go"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="intro.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Go: Introduction</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-concurrency-is-it-the-same-as-threaded-parallel-asynchronous">What is Concurrency? Is it the same as Threaded? Parallel? Asynchronous?</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wait-a-minute-why-is-this-important-and-why-should-i-care">Wait a minute! Why is this important? And Why should I care?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ok-but-why-go">OK! But why Go?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-concurrency-guide">A Concurrency Guide</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#go-routines-blocking-operations">Go Routines &amp; Blocking Operations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#channels">Channels</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Yashaswi Nayak
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
